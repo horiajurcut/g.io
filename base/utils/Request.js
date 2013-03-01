@@ -25,22 +25,42 @@ base.utils.Request = function(options) {
 };
 
 base.utils.Request.prototype.send = function() {
-	var payload = null;
+	var payload = null,
+		currentData = this.data;
 
 	if (this.method == 'POST') {
+		var keys = [];
 		payload = new FormData();
 		
-		for (key in this.data) {
-			payload.append(key, this.data[key]);
-		}
+		(function iterate(obj) {
+			for (var property in obj) {
+				if (obj.hasOwnProperty(property)) {
+					keys.push(property);
+					
+					if (typeof obj[property] == "object") {
+						iterate(obj[property]);	
+					} else {
+						var index = '';
+						
+						for (var i = 0; i < keys.length; i++) {
+							index += !i ? keys[i] : '[' + keys[i] + ']';
+						}
+						
+						payload.append(index, obj[property]);
+					}
+					
+					keys.pop();
+				}
+			}
+		})(currentData);
 	}
 	
 	if (this.method == 'GET') {
 		var query = [],
 			params = '';
 		
-		for(key in this.data) {
-			query.push(encodeURIComponent(key) + "=" + encodeURIComponent(this.data[key]));
+		for(key in currentData) {
+			query.push(encodeURIComponent(key) + "=" + encodeURIComponent(currentData[key]));
 		}
 		
 		params = '?' + query.join('&');
