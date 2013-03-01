@@ -2,10 +2,10 @@ var base = base || {};
 	base.utils = base.utils || {};
 	
 base.utils.Request = function(options) {
-	this.method = options.method == undefined ? 'GET' : options.method;
+	this.method = options.method || 'GET';
 	this.URI    = options.url;
 	this.type   = options.type;
-	this.async  = options.async == undefined ? true : options.async;
+	this.async  = !(options.async === false);
 	
 	this.data   = null;
 	
@@ -20,55 +20,59 @@ base.utils.Request = function(options) {
 	}
 	
 	this.xhr.onload = function() {
-		(options.success == undefined ? function(response) {} : options.success)(this.response);
+		options.success instanceof Function && options.success.apply(this, [this.responseText]);
 	}
 };
 
 base.utils.Request.prototype.send = function() {
-	var payload = null,
-		currentData = this.data;
-
-	if (this.method == 'POST') {
-		var keys = [];
-		payload = new FormData();
-		
-		(function iterate(obj) {
-			for (var property in obj) {
-				if (obj.hasOwnProperty(property)) {
-					keys.push(property);
-					
-					if (typeof obj[property] == "object") {
-						iterate(obj[property]);	
-					} else {
-						var index = '';
-						
-						for (var i = 0; i < keys.length; i++) {
-							index += !i ? keys[i] : '[' + keys[i] + ']';
-						}
-						
-						payload.append(index, obj[property]);
-					}
-					
-					keys.pop();
-				}
-			}
-		})(currentData);
-	}
+	var query = [],
+	    url = this.URI;
 	
+	query = base.utils.Request._prepareQuery(this.data).join('&');
 	if (this.method == 'GET') {
-		var query = [],
-			params = '';
-		
-		for(key in currentData) {
-			query.push(encodeURIComponent(key) + "=" + encodeURIComponent(currentData[key]));
+		url += '?' + query;
+		query = null;
+	}
+
+	this.xhr.open(this.method, url, this.async);
+	this.xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+	
+	if (this.method != 'GET') {
+		this.xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+	}
+
+	this.xhr.send(query);
+}
+
+base.utils.Request._prepareQuery = function (data, raw) {
+	var params = [];
+	
+	if (!data instanceof Object) return data;
+	
+	for (var name in data) {
+		if (data[name] instanceof Object) {
+			var keys = this._prepareQuery(data[name], true);
+			
+			for (var i = 0, l = keys.length; i < l; i++) {
+				keys[i].unshift(encodeURIComponent(name));
+				params.push(keys[i]);
+			}
+			
+			continue;
 		}
 		
-		params = '?' + query.join('&');
-		this.URI += params;
+		params.push([encodeURIComponent(name), encodeURIComponent(data[name])]);
 	}
-
-	this.xhr.open(this.method, this.URI, this.async);
-	this.xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-
-	this.xhr.send(payload);
+	
+	if (!raw) {
+		for (var p = 0, l = params.length; p < l; p++) {
+			var root  = params[p].shift(),
+			    value = params[p].pop(),
+			    keys  = params[p].length ? '[' + params[p].join('][') + ']' : '';
+			
+			params[p] = root + keys + '=' + value;
+		}
+	}
+	
+	return params;
 }

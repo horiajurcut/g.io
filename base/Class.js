@@ -21,17 +21,20 @@ base.Class = function() {
 		}
 		
 		definition.prototype = _lazyInstance(this);
-		definition.prototype.constructor = constructor;
 		
 		for (var name in members) {
+			if (name.match(/^__/)) continue;
+			
 			childMember  = members[name];
 			parentMember = this.prototype[name];
 			
 			definition.prototype[name] = childMember instanceof Function ? _buildMethod(childMember, parentMember) : childMember;
 		}
 		
-		definition.prototype.$static = definition;
-		definition.$extend = this.$extend;
+		definition.prototype.constructor = constructor;
+		definition.prototype.$static = function() {
+			return definition;
+		}
 		
 		return definition;
 	};
