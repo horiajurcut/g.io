@@ -1,7 +1,10 @@
 var base = base || {};
-	base.utils = base.utils || {};
-	
+    base.utils = base.utils || {};
+
 base.utils.Request = function(options) {
+	var self = this,
+	    response = null;
+	
 	this.method = options.method || 'GET';
 	this.URI    = options.url;
 	this.type   = options.type;
@@ -19,8 +22,20 @@ base.utils.Request = function(options) {
 		this.xhr.responseType = this.type;
 	}
 	
-	this.xhr.onload = function() {
-		options.success instanceof Function && options.success.apply(this, [this.responseText]);
+	this.callbacks = {};
+	
+	this.callbacks[404] = options.notFound || null;
+	this.callbacks[200] = options.success || null;
+	
+	this.xhr.onreadystatechange = function(event) {
+		if (this.readyState == 4) {
+			response = this.response || null;
+			self.callbacks[this.status] instanceof Function && self.callbacks[this.status].apply(self, [response]);
+		}
+	}
+	
+	this.xhr.onerror = function() {
+		options.failure instanceof Function && options.failure.apply(this);
 	}
 };
 
@@ -30,7 +45,7 @@ base.utils.Request.prototype.send = function() {
 	
 	query = base.utils.Request._prepareQuery(this.data).join('&');
 	if (this.method == 'GET') {
-		url += '?' + query;
+		url += !query ? '' : '?' + query;
 		query = null;
 	}
 
@@ -44,7 +59,7 @@ base.utils.Request.prototype.send = function() {
 	this.xhr.send(query);
 }
 
-base.utils.Request._prepareQuery = function (data, raw) {
+base.utils.Request._prepareQuery = function(data, raw) {
 	var params = [];
 	
 	if (!data instanceof Object) return data;
