@@ -31,6 +31,10 @@ base.utils.SoundManager.prototype.pushSound = function(path) {
 	this.soundQueue.push(path);
 }
 
+base.utils.SoundManager.prototype.getSound = function(path) {
+	return this.bufferList[path] || null;
+}
+
 base.utils.SoundManager.prototype.loadBuffer = function(path) {
 	var self = this;
 	
@@ -44,7 +48,12 @@ base.utils.SoundManager.prototype.loadBuffer = function(path) {
 		type: 'arraybuffer',
 		success: function(answer) {
 			self.context.decodeAudioData(answer, function(buffer) {
-				self.bufferList[path] = buffer;
+				var sound = new base.utils.Sound({
+					path: path,
+					buffer: buffer,
+					manager: self
+				});
+				self.bufferList[path] = sound;
 				
 				++self.loadCount;
 				self.completed() && self.ondownload instanceof Function && self.ondownload.apply(this);
@@ -60,18 +69,37 @@ base.utils.SoundManager.prototype.loadBuffer = function(path) {
 }
 
 base.utils.SoundManager.prototype.playSound = function(path) {
-	if (!(this.bufferList[path] instanceof Object)) return false;
+	if (!(this.bufferList[path] instanceof base.utils.Sound)) return false;
 	
-	var source = this.context.createBufferSource();
+	var sound = this.bufferList[path];
 	
-	source.buffer = this.bufferList[path];
-	source.connect(this.context.destination);
-	source.connect(this.mainGainNode);
+	sound.source = this.context.createBufferSource();
 	
-	source.gain.value = 0.8;
-	source.noteOn(0);
+	sound.source.buffer = sound.buffer;
+	sound.source.connect(this.context.destination);
+	sound.source.connect(this.mainGainNode);
+	
+	sound.source.gain.value = sound.settings.volume || 0.8;
+	sound.source.loop = sound.settings.looping || false;
+	
+	sound.source.start(0);
 	
 	return true;
+}
+
+base.utils.SoundManager.prototype.stopSound = function(path) {
+	if (!(this.bufferList[path] instanceof base.utils.Sound)) return false;
+	
+	var sound = this.bufferList[path];
+	sound.source.stop(0);
+	
+	return true;
+}
+
+base.utils.SoundManager.prototype.stopAll = function() {
+	this.mainGainNode.disconnect();
+	this.mainGainNode = this.context.createGainNode(0);
+	this.mainGainNode.connect(this.context.destination);
 }
 
 base.utils.SoundManager.prototype.downloadAll = function() {
