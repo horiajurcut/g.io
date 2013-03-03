@@ -6,7 +6,9 @@ base.utils.Sound = function(params) {
 	this.source   = null;
 	this.manager  = params.manager || {};
 	this.buffer   = params.buffer || {};
-	this.settings = params.settings || {};
+	this._settings = params.settings || {};
+	
+	this.finishedPlayback = true;
 }
 
 base.utils.Sound.prototype.play = function() {
@@ -17,6 +19,6 @@ base.utils.Sound.prototype.stop = function() {
 	this.manager.stopSound(this.path);
 }
 
-base.utils.Sound.prototype.setVolume = function(volume) {
-	this.settings.volume = volume;
+base.utils.Sound.prototype.settings = function(options) {
+	this._settings = options || {};
 }

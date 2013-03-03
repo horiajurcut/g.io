@@ -28,7 +28,11 @@ base.utils.SoundManager.prototype.init = function(options) {
 }
 
 base.utils.SoundManager.prototype.pushSound = function(path) {
-	this.soundQueue.push(path);
+	(path instanceof String || typeof path == 'string') && this.soundQueue.push(path);
+}
+
+base.utils.SoundManager.prototype.pushSounds = function(path) {
+	path instanceof Array && (this.soundQueue = this.soundQueue.concat(path));
 }
 
 base.utils.SoundManager.prototype.getSound = function(path) {
@@ -73,16 +77,19 @@ base.utils.SoundManager.prototype.playSound = function(path) {
 	
 	var sound = this.bufferList[path];
 	
+	!sound.finishedPlayback && sound.stop();
+	
 	sound.source = this.context.createBufferSource();
 	
 	sound.source.buffer = sound.buffer;
 	sound.source.connect(this.context.destination);
 	sound.source.connect(this.mainGainNode);
 	
-	sound.source.gain.value = sound.settings.volume || 0.8;
-	sound.source.loop = sound.settings.looping || false;
+	sound.source.gain.value = sound._settings.volume || 0.8;
+	sound.source.loop = sound._settings.looping || false;
 	
-	sound.source.start(0);
+	sound.source.noteOn(0);
+	sound.finishedPlayback = false;
 	
 	return true;
 }
@@ -91,12 +98,18 @@ base.utils.SoundManager.prototype.stopSound = function(path) {
 	if (!(this.bufferList[path] instanceof base.utils.Sound)) return false;
 	
 	var sound = this.bufferList[path];
-	sound.source.stop(0);
+	
+	sound.source.noteOff(0);
+	sound.finishedPlayback = true;
 	
 	return true;
 }
 
 base.utils.SoundManager.prototype.stopAll = function() {
+	for (path in this.bufferList) {
+		this.bufferList[path].source && this.bufferList[path].stop();
+	}
+	
 	this.mainGainNode.disconnect();
 	this.mainGainNode = this.context.createGainNode(0);
 	this.mainGainNode.connect(this.context.destination);
