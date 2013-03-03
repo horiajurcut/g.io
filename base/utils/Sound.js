@@ -2,10 +2,10 @@ var base = base || {};
     base.utils = base.utils || {};
     
 base.utils.Sound = function(params) {
-	this.path     = params.path || null;
-	this.source   = null;
-	this.manager  = params.manager || {};
-	this.buffer   = params.buffer || {};
+	this.path      = params.path || null;
+	this.source    = null;
+	this.manager   = params.manager || {};
+	this.buffer    = params.buffer || {};
 	this._settings = params.settings || {};
 	
 	this.finishedPlayback = true;

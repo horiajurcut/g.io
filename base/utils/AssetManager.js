@@ -1,6 +1,6 @@
-var base = base || {},
+var base = base || {};
     base.utils = base.utils || {};
-    
+
 base.utils.AssetManager = function() {
 	this.loadCount = 0;
 	this.errorCount = 0;
@@ -26,12 +26,12 @@ base.utils.AssetManager.prototype.downloadAll = function(callback) {
 		    
 		img.addEventListener('load', function() {
 			++this.loadCount;
-			if (self.completed()) callback();
+			self.completed() && callback();
 		}, false);
 		
 		img.addEventListener('error', function() {
 			++this.errorCount;
-			if (self.completed()) callback();
+			self.completed() && callback();
 		}, false);
 		
 		img.src = path;
@@ -40,7 +40,7 @@ base.utils.AssetManager.prototype.downloadAll = function(callback) {
 }
 
 base.utils.AssetManager.prototype.completed = function() {
-	return (this.imageQueue == this.loadCount + this.errorCount);
+	return (this.imageQueue.length == this.loadCount + this.errorCount);
 }
 
 base.utils.AssetManager.prototype.getAsset = function(path) {
