@@ -25,12 +25,12 @@ base.utils.AssetManager.prototype.downloadAll = function(callback) {
 		    img = new Image();
 		    
 		img.addEventListener('load', function() {
-			++this.loadCount;
+			this.loadCount++;
 			self.completed() && callback();
 		}, false);
 		
 		img.addEventListener('error', function() {
-			++this.errorCount;
+			this.errorCount++;
 			self.completed() && callback();
 		}, false);
 		

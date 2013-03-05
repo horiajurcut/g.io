@@ -59,12 +59,12 @@ base.utils.SoundManager.prototype.loadBuffer = function(path) {
 				});
 				self.bufferList[path] = sound;
 				
-				++self.loadCount;
+				self.loadCount++;
 				self.completed() && self.ondownload instanceof Function && self.ondownload.apply(this);
 			}, onDecodeError);
 		},
 		notFound: function(answer) {
-			++self.errorCount;
+			self.errorCount++;
 			self.completed() && self.ondownload instanceof Function && self.ondownload.apply(this);
 		}
 	});
@@ -116,7 +116,7 @@ base.utils.SoundManager.prototype.stopAll = function() {
 }
 
 base.utils.SoundManager.prototype.downloadAll = function() {
-	for (var i =0; i < this.soundQueue.length; i++) {
+	for (var i = 0; i < this.soundQueue.length; i++) {
 		this.loadBuffer(this.soundQueue[i]);
 	}
 }
