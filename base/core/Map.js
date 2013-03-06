@@ -16,14 +16,14 @@ base.core.Map = base.Class.$extend({
 	}
 });
 
-base.core.Map.prototype.loadMapData = function(path) {
+base.core.Map.prototype.loadMapData = function(path, callback) {
 	var self = this;
 	
 	var request = new base.utils.Request({
 		url: this.resourceDir + path,
 		method: 'GET',
 		success: function(map) {
-			self.parseMapData(map);
+			self.parseMapData(map, callback);
 		}
 	});
 	

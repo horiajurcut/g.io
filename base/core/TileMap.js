@@ -9,12 +9,18 @@ base.core.TileMap = base.core.Map.$extend({
 		x: 64,
 		y: 64
 	},
+	viewRect: {
+		x: 0,
+		y: 0,
+		width: 1000,
+		height: 1000
+	},
 	
 	__construct: function(params) {
 		this.$super(params);
 	},
 	
-	parseMapData: function(map) {
+	parseMapData: function(map, callback) {
 		var self = this;
 		
 		this.$super(map);
@@ -33,7 +39,7 @@ base.core.TileMap = base.core.Map.$extend({
 			
 			newImg.onload = function() {
 				self.imgLoadCount++;
-				self.fullyLoaded = (self.imgLoadCount === self.tileSets.length);
+				(self.imgLoadCount === self.tileSets.length) && self.preDrawCache(callback);
 			}
 			
 			newImg.src = this.resourceDir + 'images/' + this.mapData.tilesets[i].image.replace(/^.*[\\\/]/, '');
@@ -50,8 +56,6 @@ base.core.TileMap = base.core.Map.$extend({
 			
 			this.tileSets.push(ts);
 		}
-		
-		this.fullyLoaded = true;
 	}
 });
 
@@ -77,6 +81,26 @@ base.core.TileMap.prototype.getTilePacket = function(tileIndex) {
 	return pkt;
 }
 
+base.core.TileMap.prototype.centerAt = function(x, y, canvasWidth, canvasHeight) {
+	this.viewRect.width = canvasWidth;
+	this.viewRect.height = canvasHeight;
+	this.viewRect.x = x - (canvasWidth / 2);
+	this.viewRect.y = y - (canvasHeight / 2);
+}
+
+base.core.TileMap.intersectRectangles = function(rect1, rect2) {
+	return !(rect2.left > rect1.right || rect2.right < rect1.left ||
+		     rect2.top > rect1.bottom || rect2.bottom < rect1.top);
+}
+
+base.core.TileMap.prototype.preDrawCache = function(callback) {
+	var xCanvasCount = 0;
+	var yCanvasCount = 0;
+	
+	this.fullyLoaded = true;
+	callback.apply(this);
+}
+
 base.core.TileMap.prototype.draw = function(context) {
 	if (!this.fullyLoaded) return;
 	
@@ -93,6 +117,23 @@ base.core.TileMap.prototype.draw = function(context) {
 			var worldX = Math.floor(tileId % this.countXTiles) * this.tileSize.x,
 			    worldY = Math.floor(tileId / this.countXTiles) * this.tileSize.y;
 			
+			var visible = base.core.TileMap.intersectRectangles({
+				top:    this.viewRect.y,
+				left:   this.viewRect.x,
+				bottom: this.viewRect.y + this.viewRect.height,
+				right:  this.viewRect.x + this.viewRect.width
+			}, {
+				top:    worldY,
+				left:   worldX,
+				bottom: worldY + this.tileSize.y,
+				right:  worldX + this.tileSize.x
+			});
+			
+			if (!visible) continue;
+		
+			worldX -= this.viewRect.x;
+			worldY -= this.viewRect.y;
+			
 			context.drawImage(
 				pkt.img,
 				pkt.px, pkt.py,
@@ -102,6 +143,4 @@ base.core.TileMap.prototype.draw = function(context) {
 			);
 		}
 	}
-	
-	//return context;
 }
