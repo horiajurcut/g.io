@@ -1,7 +1,7 @@
 var base = base || {};
     base.core = base.core || {};
     
-base.core.CanvasTile = Class.$extend({
+base.core.CanvasTile = base.Class.$extend({
 	x: 0,
 	y: 0,
 	width: 100,
@@ -29,7 +29,7 @@ base.core.CanvasTile.prototype.isVisible = function(viewRect) {
 	var rect2 = viewRect;
 	    rect1 = this;
 	    
-	base.core.TileMap.intersectRectangles({
+	return base.core.TileMap.intersectRectangles({
 		top:    rect1.y,
 		left:   rect1.x,
 		bottom: rect1.y + rect1.height,

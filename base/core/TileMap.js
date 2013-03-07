@@ -3,17 +3,22 @@ var base = base || {};
     
 base.core.TileMap = base.core.Map.$extend({
 	tileSets: [],
+	canvasTiles: [],
 	countXTiles: 100,
 	countYTiles: 100,
 	tileSize: {
 		x: 64,
 		y: 64
 	},
+	canvasTileSize: {
+		x: window.innerWidth,
+		y: window.innerHeight
+	},
 	viewRect: {
-		x: 0,
-		y: 0,
-		width: 1000,
-		height: 1000
+		x: 1024,
+		y: 1024,
+		width: window.innerWidth,
+		height: window.innerHeight
 	},
 	
 	__construct: function(params) {
@@ -94,15 +99,36 @@ base.core.TileMap.intersectRectangles = function(rect1, rect2) {
 }
 
 base.core.TileMap.prototype.preDrawCache = function(callback) {
-	var xCanvasCount = 0;
-	var yCanvasCount = 0;
+	var xCanvasCount = 1 + Math.floor(this.mapPixelSize.x / this.canvasTileSize.x);
+	var yCanvasCount = 1 + Math.floor(this.mapPixelSize.y / this.canvasTileSize.y);
+	
+	for (var rows = 0; rows < yCanvasCount; rows++) {
+		for (var columns = 0; columns < xCanvasCount; columns++) {
+			var ct = new base.core.CanvasTile();
+			
+			ct.create(this.canvasTileSize.x, this.canvasTileSize.y);
+			ct.x = columns * this.canvasTileSize.x;
+			ct.y = rows * this.canvasTileSize.y;
+			
+			this.canvasTiles.push(ct);
+			this.drawCanvasTile(ct);
+		}
+	}
 	
 	this.fullyLoaded = true;
 	callback.apply(this);
 }
 
-base.core.TileMap.prototype.draw = function(context) {
-	if (!this.fullyLoaded) return;
+base.core.TileMap.prototype.drawCanvasTile = function(canvasTile) {
+	var context = canvasTile.context;
+	context.fillRect(0, 0, canvasTile.width, canvasTile.height);
+	
+	var viewRectangle = {
+		top:    canvasTile.y,
+		left:   canvasTile.x,
+		bottom: canvasTile.y + canvasTile.height,
+		right:  canvasTile.x + canvasTile.width
+	}
 	
 	for (var layerId = 0; layerId < this.mapData.layers.length; layerId++) {
 		if (this.mapData.layers[layerId].type != 'tilelayer') continue;
@@ -117,12 +143,7 @@ base.core.TileMap.prototype.draw = function(context) {
 			var worldX = Math.floor(tileId % this.countXTiles) * this.tileSize.x,
 			    worldY = Math.floor(tileId / this.countXTiles) * this.tileSize.y;
 			
-			var visible = base.core.TileMap.intersectRectangles({
-				top:    this.viewRect.y,
-				left:   this.viewRect.x,
-				bottom: this.viewRect.y + this.viewRect.height,
-				right:  this.viewRect.x + this.viewRect.width
-			}, {
+			var visible = base.core.TileMap.intersectRectangles(viewRectangle, {
 				top:    worldY,
 				left:   worldX,
 				bottom: worldY + this.tileSize.y,
@@ -131,8 +152,8 @@ base.core.TileMap.prototype.draw = function(context) {
 			
 			if (!visible) continue;
 		
-			worldX -= this.viewRect.x;
-			worldY -= this.viewRect.y;
+			worldX -= viewRectangle.left;
+			worldY -= viewRectangle.top;
 			
 			context.drawImage(
 				pkt.img,
@@ -141,6 +162,19 @@ base.core.TileMap.prototype.draw = function(context) {
 				worldX, worldY,
 				this.tileSize.x, this.tileSize.y
 			);
+		}
+	}
+}
+
+base.core.TileMap.prototype.draw = function(context) {
+	if (!this.fullyLoaded) return;
+	
+	for (var i = 0; i < this.canvasTiles.length; i++) {
+		var ct = this.canvasTiles[i];
+		
+		console.log(ct);
+		if (ct.isVisible(this.viewRect)) {
+			context.drawImage(ct.canvasHandle, ct.x - this.viewRect.x, ct.y - this.viewRect.y);
 		}
 	}
 }
