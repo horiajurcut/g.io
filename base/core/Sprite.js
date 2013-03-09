@@ -2,11 +2,11 @@ var base = base || {};
     base.core = base.core || {};
     
 base.core.Sprite = base.Class.$extend({
-	id: '',
-	x: 0,
-	y: 0,
-	width: 0,
-	height: 0,
+	id:      '',
+	x:       0,
+	y:       0,
+	width:   0,
+	height:  0,
 	centerX: 0,
 	centerY: 0,
 	

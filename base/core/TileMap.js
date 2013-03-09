@@ -172,7 +172,6 @@ base.core.TileMap.prototype.draw = function(context) {
 	for (var i = 0; i < this.canvasTiles.length; i++) {
 		var ct = this.canvasTiles[i];
 		
-		console.log(ct);
 		if (ct.isVisible(this.viewRect)) {
 			context.drawImage(ct.canvasHandle, ct.x - this.viewRect.x, ct.y - this.viewRect.y);
 		}
