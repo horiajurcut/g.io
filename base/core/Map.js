@@ -12,15 +12,18 @@ base.core.Map = base.Class.$extend({
 	imgLoadCount: 0,
 	
 	__construct: function(params) {
+		params = params || {};
+		
 		this.resourceDir = params.resourceDir || '';
+		this.path        = params.mapImage || '';
 	}
 });
 
-base.core.Map.prototype.loadMapData = function(path, callback) {
+base.core.Map.prototype.loadMapData = function(callback) {
 	var self = this;
 	
 	var request = new base.utils.Request({
-		url: this.resourceDir + path,
+		url: this.resourceDir + this.path,
 		method: 'GET',
 		success: function(map) {
 			self.parseMapData(map, callback);
