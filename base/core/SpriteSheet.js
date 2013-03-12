@@ -16,12 +16,12 @@ base.core.SpriteSheet = base.Class.$extend({
 	}
 });
 
-base.core.SpriteSheet.prototype.load = function() {
-	this.loadSpriteSheetData();
-	this.loadSpriteSheetImage();
+base.core.SpriteSheet.prototype.load = function(callback) {
+	this.loadSpriteSheetData(callback);
+	this.loadSpriteSheetImage(callback);
 }
 
-base.core.SpriteSheet.prototype.loadSpriteSheetData = function() {
+base.core.SpriteSheet.prototype.loadSpriteSheetData = function(callback) {
 	var self = this;
 	
 	var request = new base.utils.Request({
@@ -45,7 +45,7 @@ base.core.SpriteSheet.prototype.loadSpriteSheetImage = function() {
 	this.image.src = this.imagePath; 
 }
 
-base.core.SpriteSheet.prototype.parseData = function(spriteSheet) {
+base.core.SpriteSheet.prototype.parseData = function(spriteSheet, callback) {
 	this.spriteData = JSON.parse(spriteSheet);
 	
 	for (var spriteID in this.spriteData.frames) {
