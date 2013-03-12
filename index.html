@@ -18,7 +18,7 @@
 		<script src="base/core/SpriteSheet.js" type="text/javascript"></script>
 		<script src="base/core/SpriteSheetAnimation.js" type="text/javascript"></script>
 		
-		<script src="base/core/Engine.js" type="text/javascript"></script>
+		<script src="base/core/Level.js" type="text/javascript"></script>
 		<script src="base/core/Player.js" type="text/javascript"></script>
 		
 		<script src="base/utils/Request.js" type="text/javascript"></script>
@@ -26,6 +26,8 @@
 		
 		<script src="base/utils/SoundManager.js" type="text/javascript"></script>
 		<script src="base/utils/AssetManager.js" type="text/javascript"></script>
+		
+		<script src="base/game.js" type="text/javascript"></script>
 		
 		<style>
 			body {
@@ -51,41 +53,28 @@
 		<div id="main"></div>
 		
 		<script>
-			var SCREEN_WIDTH = window.innerWidth;
-			var SCREEN_HEIGHT = window.innerHeight;
 			
-			var container = document.getElementById('main');
-			var canvas = document.createElement('canvas');
 			
-			canvas.id = 'main';
+			// var player = null;
 			
-			var ctx = canvas.getContext('2d');
-			
-			ctx.canvas.width  = SCREEN_WIDTH;
-			ctx.canvas.height = SCREEN_HEIGHT;
-			
-			container.appendChild(canvas);
-			
-			var player = null;
-			
-			var robot = new base.core.SpriteSheetAnimation();
+			// var robot = new base.core.SpriteSheetAnimation();
 	
-			for(var i =0; i < 10; i++)
-				robot.pushFrame("walk_down_000" + i + ".png");
-			for(var i =10; i < 30; i++)
-				robot.pushFrame("walk_down_00" + i + ".png");
+			// for(var i =0; i < 10; i++)
+			// 	robot.pushFrame("walk_down_000" + i + ".png");
+			// for(var i =10; i < 30; i++)
+			// 	robot.pushFrame("walk_down_00" + i + ".png");
 			
-			function start() {	
-				map.draw(ctx);
-				requestAnimationFrame(run);
-			};
+			// function start() {	
+			// 	map.draw(ctx);
+			// 	requestAnimationFrame(run);
+			// };
 			
-			function run() {
-				robot.spriteSheet = atlas;							
-				robot.draw(100, 100, ctx);
+			// function run() {
+			// 	robot.spriteSheet = atlas;							
+			// 	robot.draw(100, 100, ctx);
 				
-				requestAnimationFrame(run);
-			}
+			// 	requestAnimationFrame(run);
+			// }
 			
 		</script>
 	</body>

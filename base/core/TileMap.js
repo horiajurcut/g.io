@@ -25,7 +25,7 @@ base.core.TileMap = base.core.Map.$extend({
 		this.$super(params);
 	},
 	
-	parseMapData: function(map, callback) {
+	parseMapData: function(map, level) {
 		var self = this;
 		
 		this.$super(map);
@@ -44,10 +44,10 @@ base.core.TileMap = base.core.Map.$extend({
 			
 			newImg.onload = function() {
 				self.imgLoadCount++;
-				(self.imgLoadCount === self.tileSets.length) && self.preDrawCache(callback);
+				(self.imgLoadCount === self.tileSets.length) && self.preDrawCache(level);
 			}
 			
-			newImg.src = this.resourceDir + 'images/' + this.mapData.tilesets[i].image.replace(/^.*[\\\/]/, '');
+			newImg.src = 'resources/images/' + this.mapData.tilesets[i].image.replace(/^.*[\\\/]/, '');
 			
 			var ts = {
 				firstgid: this.mapData.tilesets[i].firstgid,
@@ -98,7 +98,7 @@ base.core.TileMap.intersectRectangles = function(rect1, rect2) {
 		     rect2.top > rect1.bottom || rect2.bottom < rect1.top);
 }
 
-base.core.TileMap.prototype.preDrawCache = function(callback) {
+base.core.TileMap.prototype.preDrawCache = function(level) {
 	var xCanvasCount = 1 + Math.floor(this.mapPixelSize.x / this.canvasTileSize.x);
 	var yCanvasCount = 1 + Math.floor(this.mapPixelSize.y / this.canvasTileSize.y);
 	
@@ -116,7 +116,7 @@ base.core.TileMap.prototype.preDrawCache = function(callback) {
 	}
 	
 	this.fullyLoaded = true;
-	callback.apply(this);
+	level.loadCompleted();
 }
 
 base.core.TileMap.prototype.drawCanvasTile = function(canvasTile) {

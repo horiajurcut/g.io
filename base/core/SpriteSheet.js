@@ -4,49 +4,14 @@ var base = base || {};
 base.core.SpriteSheet = base.Class.$extend({
 	image:       null,
 	spriteData:  null,
-	imagePath:   '',
-	dataPath:    '',
 	sprites:     [],
+	fullyLoaded: false,
 	
-	__construct: function(params) {
-		params = params || {};
-		
-		this.dataPath  = params.dataPath || null;
-		this.imagePath = params.imagePath || null;
-	}
+	__construct: function() {}
 });
 
-base.core.SpriteSheet.prototype.load = function(callback) {
-	this.loadSpriteSheetData(callback);
-	this.loadSpriteSheetImage(callback);
-}
-
-base.core.SpriteSheet.prototype.loadSpriteSheetData = function(callback) {
-	var self = this;
-	
-	var request = new base.utils.Request({
-		url: this.dataPath,
-		method: 'GET',
-		success: function(spriteSheet) {
-			self.parseData(spriteSheet, function() {});
-		}
-	});
-	
-	request.send();
-}
-
-base.core.SpriteSheet.prototype.loadSpriteSheetImage = function() {
-	this.image = new Image();
-	
-	this.image.onload = function() {
-		
-	}
-	
-	this.image.src = this.imagePath; 
-}
-
-base.core.SpriteSheet.prototype.parseData = function(spriteSheet, callback) {
-	this.spriteData = JSON.parse(spriteSheet);
+base.core.SpriteSheet.prototype.parseData = function(options, level) {
+	this.spriteData = JSON.parse(options.spriteSheet);
 	
 	for (var spriteID in this.spriteData.frames) {
 		var spriteObj = this.spriteData.frames[spriteID];
@@ -68,6 +33,13 @@ base.core.SpriteSheet.prototype.parseData = function(spriteSheet, callback) {
 		
 		this.defineSprite(params);
 	}
+	
+	this.image = new Image();
+	this.image.onload = function() {};
+	this.image.src = options.image; 
+	
+	this.fullyLoaded = true;
+	level.loadCompleted();
 }
 
 base.core.SpriteSheet.prototype.defineSprite = function(params) {
