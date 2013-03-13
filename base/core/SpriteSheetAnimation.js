@@ -2,16 +2,22 @@ var base = base || {};
     base.core = base.core || {};
     
 base.core.SpriteSheetAnimation = base.Class.$extend({
-	spriteSheet: null,
-	spriteIDs:   [],
-	
-	__construct: function(params) {
-		
+	__construct: function() {
+		this.spriteSheet           = null;
+		this.spriteIDs             = [];
+		this.currentAnimationIndex = 0;
+		this.animationIncPerFrame  = 1;
+		this.paused                = false;
 	}
 });
 
 base.core.SpriteSheetAnimation.prototype.draw = function(x, y, context) {
-	var spt = this.spriteSheet.getSprite('walk_down_0002.png');
+	if (!this.paused) {
+		this.currentAnimationIndex +=  this.animationIncPerFrame;
+	}
+	var cIDX = Math.floor(this.currentAnimationIndex) % this.spriteIDs.length;
+	
+	var spt = this.spriteSheet.getSprite(this.spriteIDs[cIDX]);
 	
 	var hlf = {
 		x: spt.centerX,

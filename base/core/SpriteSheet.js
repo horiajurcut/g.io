@@ -2,12 +2,12 @@ var base = base || {};
     base.core = base.core || {};
     
 base.core.SpriteSheet = base.Class.$extend({
-	image:       null,
-	spriteData:  null,
-	sprites:     [],
-	fullyLoaded: false,
-	
-	__construct: function() {}
+	__construct: function() {
+		this.image       = null;
+		this.spriteData  = null;
+		this.sprites     = [];
+		this.fullyLoaded = false;
+	}
 });
 
 base.core.SpriteSheet.prototype.parseData = function(options, level) {

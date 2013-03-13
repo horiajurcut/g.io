@@ -20,7 +20,7 @@ function start() {
 
 	level.mainContext = ctx;
 
-	function _init() {
+	function _load() {
 		level.defineAssets([
 			{
 				src:   'resources/maps/grits.json',
@@ -33,7 +33,12 @@ function start() {
 			}
 		]);
 
-		level.load(_run);	
+		level.load(_init);	
+	}
+
+	function _init() {
+		level.init();
+		_run();
 	}
 
 	function _run() {
@@ -42,5 +47,5 @@ function start() {
 		requestAnimationFrame(_run);
 	}
 
-	_init();	
+	_load();	
 }
