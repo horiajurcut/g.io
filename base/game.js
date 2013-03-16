@@ -16,11 +16,16 @@ function start() {
 
 	container.appendChild(canvas);
 
-	var level = new base.core.Level();
+	var gameEngine = new base.core.GameEngine();
 
-	level.mainContext = ctx;
+	gameEngine.mainContext = ctx;
+	
+	gameEngine.factory['Player'] = base.core.Player;
+	gameEngine.factory['Enemy'] = base.core.Enemy;
 
 	function _load() {
+		var level = new base.core.Level();
+		
 		level.defineAssets([
 			{
 				src:   'resources/maps/grits.json',
@@ -29,20 +34,29 @@ function start() {
 			{
 				src:   'resources/maps/grits_effects.json',
 				image: 'resources/images/grits_effects.png',
-				type:  'sheet'
+				type:  'atlas'
 			}
 		]);
+		
+		gameEngine.pushLevel('tutorial', level);
+		
+		gameEngine.currentLevel = 'tutorial';
 
-		level.load(_init);	
+		gameEngine.load(_init);	
 	}
 
 	function _init() {
-		level.init();
+		gameEngine.createEntity({
+			type:             'Player',
+			cycles:           ['walk_left', 'walk_right', 'walk_up', 'walk_down'],
+			currentAnimation: 'walk_right'
+		});
+		
 		_run();
 	}
 
 	function _run() {
-		level.run();
+		gameEngine.run();
 		
 		requestAnimationFrame(_run);
 	}

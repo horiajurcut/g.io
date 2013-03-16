@@ -1,7 +1,7 @@
 var base = base || {};
     base.core = base.core || {};
     
-base.core.Player = base.core.Entity.$extend({
+base.core.Enemy = base.core.Entity.$extend({
 	__construct: function() {
 		this.$super();
 	},
